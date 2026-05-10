@@ -1,0 +1,185 @@
+import React, { useState } from "react";
+
+/* ── PALETTE ── */
+const C = {
+  bg:       "#0d0b07",
+  marble:   "#f0ead6",
+  marbleDim:"#c8bfa0",
+  gold:     "#c8963c",
+  goldBright:"#e8b84b",
+  goldDim:  "#7a5a1e",
+  terracotta:"#b5522a",
+  terracottaDim:"#6b2e14",
+  verdigris:"#4a7c6e",
+  verdigrisDim:"#2a4a3e",
+  ink:      "#1e1a10",
+  inkLight: "#2e2818",
+  muted:    "#6a6050",
+  text:     "#cec4a0",
+  textDim:  "#8a8070",
+};
+
+/* ── DATA: PRINCIPLES, TETRAD, GALEN, PENTATHLON, MILO ── */
+const PRINCIPLES = [
+  { gk: "ΤΕΤΡΑΔ", en: "The Tetrad", sub: "Four-day sacred cycle", desc: "Philostratus documented it: Prepare → Toil → Rest → Medium. This is the original periodization. Every Greek athlete lived inside this repeating cycle." },
+  { gk: "ΚΑΛΟΚΑΓΑΘΙΑ", en: "Kalokagathia", sub: "Beautiful & Good", desc: "The supreme Greek ideal — beauty and virtue inseparable. You train the body to express the character. A Greek athlete was not merely muscular; he was mobile, fast, and disciplined." },
+  { gk: "ΠΕΝΤΑΘΛΟΝ", en: "The Pentathlon", sub: "Five disciplines, one man", desc: "Aristotle said pentathletes were 'the most beautiful' because they trained for everything: speed, power, endurance, skill, and combat." },
+  { gk: "ΠΑΛΑΙΣΤΡΑ", en: "The Palaestra", sub: "Sacred training ground", desc: "The Greeks trained in open courtyards — sun, fresh air, sand, and stone. Your home is your palaestra. Every morning session is a sacred ritual." },
+  { gk: "ΚΑΙΡΟΣ", en: "Kairos", sub: "The right moment", desc: "Listen to your body. Never train through sharp pain. Adjust with intelligence based on the moment's necessity." },
+];
+
+const TETRAD = [
+  {
+    day: "I", name: "PREPARATION", gk: "ΠΡΟΠΑΡΑΣΚΕΥΗ", color: C.verdigris,
+    ancientPurpose: "Short, intense movements that stir the athlete — Philostratus",
+    modernIntent: "Activate the nervous system. Prime the joints. Build movement quality.",
+    sessions: [
+      { phase: "OPENING RITE", duration: "10 min", items: [
+        { act: "Sun salutation walk — 5 min slow outdoor walk", equiv: "Ancient movement as ritual" },
+        { act: "Mobility: Chin tucks, Wall angels, Hip circles", equiv: "Greeks oiled and stretched before training" },
+      ]},
+      { phase: "HALTERES WORK", duration: "15 min", items: [
+        { act: "3kg Halteres Curl — 3 × 12", equiv: "Antyllus documented this exact movement" },
+        { act: "3kg Forward Lunge Press — 3 × 10", equiv: "Shoulder + leg combined loading" },
+      ]},
+    ],
+  },
+  {
+    day: "II", name: "THE DAY OF TOIL", gk: "ΗΜΕΡΑ ΠΟΝΟΥ", color: C.terracotta,
+    ancientPurpose: "An all-out trial of potential — Philostratus.",
+    modernIntent: "Maximum honest effort. Push the body to its current limit.",
+    sessions: [
+      { phase: "STADION — Sprint Rite", duration: "15 min", items: [
+        { act: "Treadmill sprints: 30s at 80% / 90s walk × 6", equiv: "The 200m stadion race" },
+      ]},
+      { phase: "PANKRATION", duration: "20 min", items: [
+        { act: "Punching bag — 5 rounds × 2 min", equiv: "Korykos bag training" },
+      ]},
+    ],
+  },
+  {
+    day: "III", name: "RELAXATION", gk: "ΑΝΑΠΑΥΣΗ", color: C.verdigrisDim,
+    ancientPurpose: "Devoted to relaxation — Philostratus.",
+    modernIntent: "Active recovery. Walk, stretch, breathe. The body rebuilds.",
+    sessions: [
+      { phase: "PERIPATETIC WALK", duration: "30 min", items: [
+        { act: "Outdoor walk, nasal breathing only", equiv: "Aristotle's walking school" },
+      ]},
+    ],
+  },
+  {
+    day: "IV", name: "MEDIUM CONDITION", gk: "ΜΕΣΗ ΚΑΤΑΣΤΑΣΗ", color: C.gold,
+    ancientPurpose: "A middle condition — Philostratus.",
+    modernIntent: "Build skills and address weak points. Intentional and technical.",
+    sessions: [
+      { phase: "PENTATHLON SKILLS", duration: "20 min", items: [
+        { act: "Standing long jump × 10 attempts", equiv: "Halma (explosive power)" },
+      ]},
+    ],
+  },
+];
+
+/* ── STYLES ── */
+const s = {
+  app: { background: C.bg, minHeight: "100vh", color: C.text, fontFamily: "serif", overflowX: "hidden" },
+  hero: { background: `radial-gradient(ellipse at 50% 0%, #2a1e08 0%, ${C.bg} 70%)`, padding: "50px 20px", textAlign: "center", borderBottom: `1px solid ${C.goldDim}` },
+  heroTitle: { fontSize: "clamp(24px, 6vw, 48px)", color: C.goldBright, letterSpacing: "4px", textTransform: "uppercase", margin: "10px 0" },
+  nav: { display: "flex", flexWrap: "wrap", gap: "5px", justifyContent: "center", padding: "15px", background: "#0a0804", sticky: "top", borderBottom: `1px solid ${C.inkLight}` },
+  navBtn: (active) => ({ background: active ? C.gold : "transparent", color: active ? C.bg : C.muted, border: `1px solid ${active ? C.gold : C.inkLight}`, padding: "8px 15px", fontSize: "10px", cursor: "pointer", textTransform: "uppercase", fontWeight: "bold" }),
+  section: { maxWidth: "900px", margin: "0 auto", padding: "40px 20px" },
+  card: (color) => ({ background: C.inkLight, borderLeft: `4px solid ${color || C.gold}`, padding: "20px", marginBottom: "20px", borderRadius: "2px" }),
+  table: { width: "100%", borderCollapse: "collapse", margin: "15px 0" },
+  th: { textAlign: "left", padding: "10px", color: C.gold, borderBottom: `1px solid ${C.goldDim}`, fontSize: "10px", textTransform: "uppercase" },
+  td: { padding: "10px", borderBottom: `1px solid ${C.inkLight}`, fontSize: "13px" },
+  pill: (c) => ({ display: "inline-block", background: `${c}22`, color: c, border: `1px solid ${c}44`, padding: "2px 8px", fontSize: "10px", marginRight: "5px", textTransform: "uppercase" }),
+};
+
+/* ── COMPONENTS ── */
+const Row = ({ children, color }) => (
+  <div style={{ display: "flex", gap: "10px", padding: "5px 0", alignItems: "center" }}>
+    <div style={{ width: "6px", height: "6px", borderRadius: "50%", background: color || C.gold }} />
+    <div style={{ fontSize: "14px" }}>{children}</div>
+  </div>
+);
+
+const Philosophy = () => (
+  <div style={s.section}>
+    <h2 style={{ color: C.marble }}>Greek Athletic Philosophy</h2>
+    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))", gap: "15px", marginTop: "20px" }}>
+      {PRINCIPLES.map((p, i) => (
+        <div key={i} style={s.card(C.goldDim)}>
+          <div style={{ fontSize: "18px", color: C.goldBright }}>{p.gk}</div>
+          <div style={{ fontSize: "12px", color: C.muted, marginBottom: "10px" }}>{p.en}</div>
+          <p style={{ fontSize: "13px", lineHeight: "1.6" }}>{p.desc}</p>
+        </div>
+      ))}
+    </div>
+  </div>
+);
+
+const TrainingCycle = () => {
+  const [activeDay, setActiveDay] = useState(0);
+  const day = TETRAD[activeDay];
+
+  return (
+    <div style={s.section}>
+      <h2 style={{ color: C.marble }}>The Tetrad System</h2>
+      <div style={{ display: "flex", gap: "10px", margin: "20px 0", flexWrap: "wrap" }}>
+        {TETRAD.map((d, i) => (
+          <button key={i} onClick={() => setActiveDay(i)} style={s.navBtn(activeDay === i)}>Day {d.day}</button>
+        ))}
+      </div>
+      <div style={s.card(day.color)}>
+        <h3 style={{ color: day.color }}>{day.gk} — {day.name}</h3>
+        <p style={{ fontStyle: "italic", fontSize: "13px", color: C.marbleDim }}>{day.ancientPurpose}</p>
+        {day.sessions.map((sess, si) => (
+          <div key={si} style={{ marginTop: "20px" }}>
+            <div style={{ fontSize: "11px", color: day.color, fontWeight: "bold" }}>{sess.phase} ({sess.duration})</div>
+            <table style={s.table}>
+              <thead>
+                <tr>
+                  <th style={s.th}>Movement</th>
+                  <th style={s.th}>Ancient Context</th>
+                </tr>
+              </thead>
+              <tbody>
+                {sess.items.map((item, ii) => (
+                  <tr key={ii}>
+                    <td style={s.td}><strong>{item.act}</strong></td>
+                    <td style={{ ...s.td, color: C.muted }}>{item.equiv}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+/* ── MAIN APP ── */
+export default function PalaestraApp() {
+  const [tab, setTab] = useState("philosophy");
+
+  return (
+    <div style={s.app}>
+      <div style={s.hero}>
+        <div style={{ fontSize: "10px", letterSpacing: "5px", color: C.goldDim }}>MAURITIUS · EST. 2026</div>
+        <h1 style={s.heroTitle}>The Palaestra Protocol</h1>
+        <div style={{ color: C.marbleDim, letterSpacing: "8px", fontSize: "14px" }}>Τὸ Πρόγραμμα τῆς Παλαίστρας</div>
+      </div>
+
+      <nav style={s.nav}>
+        <button onClick={() => setTab("philosophy")} style={s.navBtn(tab === "philosophy")}>Philosophy</button>
+        <button onClick={() => setTab("cycle")} style={s.navBtn(tab === "cycle")}>Training Cycle</button>
+      </nav>
+
+      {tab === "philosophy" ? <Philosophy /> : <TrainingCycle />}
+
+      <footer style={{ textAlign: "center", padding: "40px", color: C.muted, fontSize: "11px" }}>
+        ΚΑΛΟΚΑΓΑΘΙΑ — BEAUTY AND VIRTUE IN ONE
+      </footer>
+    </div>
+  );
+}
